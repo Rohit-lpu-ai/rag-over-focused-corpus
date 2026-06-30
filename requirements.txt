@@ -3,5 +3,6 @@ langchain
 langchain-community
 chromadb
 pymupdf
+pypdf
 sentence-transformers
 python-dotenv
