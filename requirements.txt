@@ -6,3 +6,5 @@ pymupdf
 pypdf
 sentence-transformers
 python-dotenv
+torch
+openai
