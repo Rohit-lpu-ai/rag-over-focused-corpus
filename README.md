@@ -115,9 +115,39 @@ rag-over-focused-corpus/
 ├── README.md
 └── .gitignore
 ```
+## Current Progress
 
+### Completed
+- Project setup and repository creation
+- PDF ingestion pipeline using PyPDF
+- Document loading from local corpus
+- Text chunking using RecursiveCharacterTextSplitter
+- Embedding generation using BGE Small (`BAAI/bge-small-en-v1.5`)
+- Created 103 semantic chunks from the document corpus
+- Generated embeddings of shape `(103, 384)`
+
+### In Progress
+- Vector database integration using ChromaDB
+- Semantic retrieval pipeline
+
+### Upcoming
+- LLM integration
+- Citation support
+- Streamlit UI
+- Evaluation framework
+- Compare Two Documents feature
 ---
 
+# Week 2 Learning Summary
+
+- Learned the fundamentals of Retrieval-Augmented Generation (RAG).
+- Explored PDF parsing and document ingestion using PyPDF.
+- Implemented text chunking using LangChain text splitters.
+- Generated semantic embeddings using the BGE embedding model.
+- Learned the difference between keyword search and semantic search.
+- Gained hands-on experience with Git, GitHub, and Jupyter notebooks.
+- Successfully processed documents into 103 chunks with 384-dimensional embeddings.
+- Adopted a modular notebook-based workflow for building the RAG pipeline.
 ## Installation
 
 ### Clone the Repository
