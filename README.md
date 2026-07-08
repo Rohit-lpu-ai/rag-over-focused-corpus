@@ -16,7 +16,7 @@ Lovely Professional University
 
 ---
 
-## Project Overview
+## 📖 Project Overview
 
 This project implements a Retrieval-Augmented Generation (RAG) based Question Answering system over a focused collection of documents.
 
@@ -36,7 +36,7 @@ This project solves this problem by:
 
 ---
 
-## Features
+## 🚀 Features
 
 * PDF document ingestion
 * Automatic text extraction
@@ -85,7 +85,7 @@ Answer Generation
 
 ---
 
-## Folder Structure
+## 🏗️ Project Structure
 
 ```text
 rag-over-focused-corpus/
