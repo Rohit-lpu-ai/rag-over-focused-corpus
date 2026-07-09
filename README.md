@@ -87,33 +87,51 @@ Answer Generation
 
 ## Folder Structure
 
+## 📁 Project Structure
+
 ```text
 rag-over-focused-corpus/
 │
 ├── data/
-│   ├── raw/
-│   └── processed/
+│   ├── Raw/                     # Source PDF documents
+│   │   ├── Academic Calendar for Full Time Programmes.pdf  # For testing only
+│   │   └── AiMlReportFinal.pdf  # For testing only 
+│   │
+│   ├── processed/
+│   │   ├── chunks.pkl
+│   │   └── embeddings.pkl
+│   │
+│   └── chroma_db/               # Persistent ChromaDB database
 │
-├── src/
-│   ├── ingest.py
-│   ├── chunk.py
-│   ├── embed.py
-│   ├── retrieve.py
-│   └── generate.py
+├── pyfiles/                     # Reusable Python modules
+│   ├── __init__.py
+│   ├── ingestion.py
+│   ├── chunking.py
+│   ├── embedding.py
+│   ├── vector_db.py
+│   ├── retrieval.py
+│   └── generation.py
 │
-├── docs/
-│   ├── adr/
-│   ├── design_doc.md
-│   └── architecture.png
+├── src/                         # Jupyter notebooks
+│   ├── ingest.ipynb
+│   ├── chunking.ipynb
+│   ├── Embedding.ipynb
+│   ├── vector.ipynb
+│   ├── retrieval.ipynb
+│   ├── generation.ipynb
+│   ├── evaluation.ipynb
+│   └── ingest.py
 │
-├── tests/
+├── evaluation/                  # Evaluation outputs
 │
-├── evaluation/
+├── docs/                        # Project documentation
 │
-├── app.py
-├── requirements.txt
+├── tests/                       # Testing scripts (optional)
+│
 ├── README.md
-└── .gitignore
+├── requirements.txt
+└── test_imports.py
+```
 ```
 ## Current Progress
 
