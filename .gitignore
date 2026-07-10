@@ -42,3 +42,15 @@ dist/
 
 # Miscellaneous
 *.tmp
+
+
+
+# Python
+__pycache__/
+*.pyc
+
+# Environment
+.env
+
+# ChromaDB
+data/chroma_db/
