@@ -1,7 +1,13 @@
 import streamlit as st
+import os
+from pathlib import Path
 
 from pyfiles.retrieval import retrieve_documents
 from pyfiles.generation import generate_answer
+
+
+
+
 
 # -------------------------------------------------
 # Page Config
@@ -11,6 +17,8 @@ st.set_page_config(
     page_icon="📚",
     layout="wide",
 )
+
+
 
 # -------------------------------------------------
 # Custom CSS
@@ -80,6 +88,55 @@ with st.sidebar:
     st.info(
         "This application answers questions from uploaded PDFs using Retrieval-Augmented Generation (RAG)."
     )
+  # ============================
+# DOCUMENT MANAGER
+# ============================
+
+st.markdown("---")
+st.subheader("📂 Document Manager")
+
+UPLOAD_DIR = Path("data/raw")
+UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
+
+uploaded_file = st.file_uploader(
+    "Upload a PDF",
+    type=["pdf"],
+)
+
+if uploaded_file is not None:
+
+    file_path = UPLOAD_DIR / uploaded_file.name
+
+    with open(file_path, "wb") as f:
+        f.write(uploaded_file.getbuffer())
+
+    st.success(f"✅ {uploaded_file.name} uploaded successfully!")
+
+    st.markdown("---")
+st.subheader("📄 Available Documents")
+
+pdf_files = sorted(UPLOAD_DIR.glob("*.pdf"))
+
+if len(pdf_files) == 0:
+    st.info("No PDF uploaded yet.")
+
+else:
+    for pdf in pdf_files:
+
+        col1, col2 = st.columns([4, 1])
+
+        with col1:
+            st.write(f"📄 {pdf.name}")
+
+        with col2:
+            if st.button("🗑️", key=f"delete_{pdf.name}"):
+
+                pdf.unlink()
+
+                st.success(f"{pdf.name} deleted successfully!")
+
+                st.rerun()
+
 
 # -------------------------------------------------
 # Header
