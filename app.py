@@ -1,234 +1,59 @@
+"""
+StudyBuddy AI -- entry point.
+
+This file owns page config, theme/session bootstrap, and native Streamlit
+navigation (st.navigation). Each page under pages/ is a self-contained view;
+none of them touch pyfiles/ backend logic directly except through
+utils/kb_manager.py, which is additive and documented separately.
+"""
+
 import streamlit as st
-import os
-from pathlib import Path
 
-from pyfiles.retrieval import retrieve_documents
-from pyfiles.generation import generate_answer
-
-
-
-
+from components.styles import load_css
+from components.sidebar import show_sidebar
 
 # -------------------------------------------------
-# Page Config
+# Page config (must be the first Streamlit call)
 # -------------------------------------------------
 st.set_page_config(
     page_title="StudyBuddy AI",
     page_icon="📚",
     layout="wide",
+    initial_sidebar_state="expanded",
 )
 
-
-
 # -------------------------------------------------
-# Custom CSS
+# Session bootstrap
 # -------------------------------------------------
-st.markdown("""
-<style>
-
-.main-title{
-    font-size:42px;
-    font-weight:bold;
-    color:#2E86C1;
-}
-
-.subtitle{
-    font-size:18px;
-    color:gray;
-    margin-bottom:20px;
-}
-
-.answer-box{
-    background:#F4F6F7;
-    padding:18px;
-    border-radius:10px;
-    border-left:6px solid #2E86C1;
-}
-
-.source-box{
-    background:#FBFCFC;
-    padding:15px;
-    border-radius:10px;
-}
-
-</style>
-""", unsafe_allow_html=True)
-
-# -------------------------------------------------
-# Sidebar
-# -------------------------------------------------
-with st.sidebar:
-
-    st.title("📚 StudyBuddy AI")
-
-    st.markdown("---")
-
-    st.subheader("⚙ Powered By")
-
-    st.success("Gemini 2.5 Flash")
-
-    st.success("ChromaDB")
-
-    st.success("Sentence Transformers")
-
-    st.success("Streamlit")
-
-    st.markdown("---")
-
-    st.subheader("💡 Example Questions")
-
-    st.write("• What is Retrieval-Augmented Generation?")
-
-    st.write("• Explain Dynamic CRM Personalization.")
-
-    st.write("• Summarize the Academic Calendar.")
-
-    st.markdown("---")
-
-    st.info(
-        "This application answers questions from uploaded PDFs using Retrieval-Augmented Generation (RAG)."
-    )
-  # ============================
-# DOCUMENT MANAGER
-# ============================
-
-st.markdown("---")
-st.subheader("📂 Document Manager")
-
-UPLOAD_DIR = Path("data/raw")
-UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
-
-uploaded_file = st.file_uploader(
-    "Upload a PDF",
-    type=["pdf"],
-)
-
-if uploaded_file is not None:
-
-    file_path = UPLOAD_DIR / uploaded_file.name
-
-    with open(file_path, "wb") as f:
-        f.write(uploaded_file.getbuffer())
-
-    st.success(f"✅ {uploaded_file.name} uploaded successfully!")
-
-    st.markdown("---")
-st.subheader("📄 Available Documents")
-
-pdf_files = sorted(UPLOAD_DIR.glob("*.pdf"))
-
-if len(pdf_files) == 0:
-    st.info("No PDF uploaded yet.")
-
-else:
-    for pdf in pdf_files:
-
-        col1, col2 = st.columns([4, 1])
-
-        with col1:
-            st.write(f"📄 {pdf.name}")
-
-        with col2:
-            if st.button("🗑️", key=f"delete_{pdf.name}"):
-
-                pdf.unlink()
-
-                st.success(f"{pdf.name} deleted successfully!")
-
-                st.rerun()
-
-
-# -------------------------------------------------
-# Header
-# -------------------------------------------------
-
-st.markdown(
-    '<p class="main-title">📚 StudyBuddy AI</p>',
-    unsafe_allow_html=True,
-)
-
-st.markdown(
-    '<p class="subtitle">AI-Powered Document Question Answering using RAG + Gemini</p>',
-    unsafe_allow_html=True,
-)
-
-st.divider()
-
-# -------------------------------------------------
-# Session State
-# -------------------------------------------------
-
+if "theme" not in st.session_state:
+    st.session_state.theme = "light"
 if "messages" not in st.session_state:
     st.session_state.messages = []
+if "search_history" not in st.session_state:
+    st.session_state.search_history = []
+if "pinned_prompts" not in st.session_state:
+    st.session_state.pinned_prompts = []
 
-# Display Previous Messages
-
-for message in st.session_state.messages:
-
-    with st.chat_message(message["role"]):
-        st.markdown(message["content"])
+load_css(st.session_state.theme)
 
 # -------------------------------------------------
-# Chat Input
+# Pages
 # -------------------------------------------------
+chat_page = st.Page("pages/chat.py", title="Chat", icon="💬", default=True)
+dashboard_page = st.Page("pages/dashboard.py", title="Dashboard", icon="📊")
+documents_page = st.Page("pages/documents.py", title="Documents", icon="📂")
+settings_page = st.Page("pages/settings.py", title="Settings", icon="⚙️")
+about_page = st.Page("pages/about.py", title="About", icon="ℹ️")
 
-question = st.chat_input("Ask a question about your documents...")
+st.session_state.chat_page_ref = chat_page
 
-if question:
+nav = st.navigation(
+    {
+        "StudyBuddy": [chat_page, dashboard_page, documents_page],
+        "": [settings_page, about_page],
+    }
+)
 
-    st.session_state.messages.append(
-        {
-            "role": "user",
-            "content": question,
-        }
-    )
+show_sidebar()
 
-    with st.chat_message("user"):
-        st.markdown(question)
-
-    with st.spinner("Searching documents..."):
-
-        try:
-
-            docs = retrieve_documents(question)
-
-            answer = generate_answer(question, docs)
-
-        except Exception as e:
-
-            st.error(str(e))
-
-            st.stop()
-
-    st.session_state.messages.append(
-        {
-            "role": "assistant",
-            "content": answer,
-        }
-    )
-
-    with st.chat_message("assistant"):
-
-        st.markdown(answer)
-
-        st.divider()
-
-        st.subheader("📄 Retrieved Sources")
-
-        for i, doc in enumerate(docs, start=1):
-
-            with st.expander(
-                f"📄 {doc['metadata'].get('source','Unknown')}"
-            ):
-
-                st.markdown(
-                    f"**Chunk ID:** {doc['metadata'].get('chunk_id','Unknown')}"
-                )
-
-                st.markdown(
-                    f"**Similarity Distance:** `{doc['distance']:.4f}`"
-                )
-
-                st.markdown("---")
-
-                st.write(doc["text"])
+nav.run()
