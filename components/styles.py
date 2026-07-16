@@ -96,26 +96,59 @@ def load_css(theme: str = "light") -> None:
         /* ---------- animated ambient background (respects reduced motion) ---------- */
         .ambient-bg {{
             position: fixed; inset: 0; z-index: -1; overflow: hidden; pointer-events: none;
+            background:
+                radial-gradient(circle at 15% 20%, rgba(255,255,255,0.18), transparent 24%),
+                radial-gradient(circle at 85% 15%, rgba(255,255,255,0.10), transparent 22%),
+                radial-gradient(circle at 70% 80%, rgba(255,255,255,0.12), transparent 26%),
+                linear-gradient(135deg, rgba(255,255,255,0.06), transparent 40%);
+            transform: perspective(1400px) rotateX(2deg);
+        }}
+        .ambient-bg::before, .ambient-bg::after {{
+            content: ""; position: absolute; inset: 0; pointer-events: none;
+        }}
+        .ambient-bg::before {{
+            background: linear-gradient(120deg, transparent 0%, rgba(255,255,255,0.08) 35%, transparent 70%);
+            transform: translateX(-20%) skewX(-12deg);
+            animation: sweep 18s linear infinite;
+        }}
+        .ambient-bg::after {{
+            background:
+                radial-gradient(circle at 65% 20%, var(--accent-soft) 0%, transparent 34%),
+                radial-gradient(circle at 20% 80%, var(--primary) 0%, transparent 30%),
+                radial-gradient(circle at 50% 50%, rgba(255,255,255,0.08), transparent 48%);
+            filter: blur(18px);
+            opacity: 0.9;
+            transform: translateZ(0);
         }}
         .ambient-bg span {{
-            position: absolute; border-radius: 50%; filter: blur(60px); opacity: 0.35;
-            animation: drift 26s ease-in-out infinite;
+            position: absolute; border-radius: 50%; filter: blur(78px); opacity: 0.34;
+            animation: drift 24s ease-in-out infinite;
+            transform-style: preserve-3d;
         }}
         .ambient-bg span:nth-child(1) {{
-            width: 420px; height: 420px; top: -120px; left: -100px;
+            width: 480px; height: 480px; top: -150px; left: -130px;
             background: var(--primary); animation-delay: 0s;
         }}
         .ambient-bg span:nth-child(2) {{
-            width: 360px; height: 360px; bottom: -140px; right: -80px;
+            width: 420px; height: 420px; bottom: -160px; right: -110px;
             background: var(--accent); animation-delay: -8s;
         }}
         .ambient-bg span:nth-child(3) {{
-            width: 300px; height: 300px; top: 40%; left: 60%;
-            background: var(--success); opacity: 0.15; animation-delay: -14s;
+            width: 320px; height: 320px; top: 38%; left: 58%;
+            background: var(--success); opacity: 0.16; animation-delay: -14s;
+        }}
+        .ambient-bg span:nth-child(4) {{
+            width: 260px; height: 260px; top: 20%; left: 38%;
+            background: var(--surface-2); opacity: 0.18; animation-delay: -4s;
+            box-shadow: inset 0 0 60px rgba(255,255,255,0.08);
         }}
         @keyframes drift {{
             0%, 100% {{ transform: translate(0,0) scale(1); }}
             50% {{ transform: translate(40px,-30px) scale(1.08); }}
+        }}
+        @keyframes sweep {{
+            0% {{ transform: translateX(-20%); }}
+            100% {{ transform: translateX(120%); }}
         }}
         @media (prefers-reduced-motion: reduce) {{
             .ambient-bg span {{ animation: none; }}
@@ -141,6 +174,10 @@ def load_css(theme: str = "light") -> None:
             from {{ opacity: 0; transform: translateY(8px); }}
             to {{ opacity: 1; transform: translateY(0); }}
         }}
+        @keyframes floatIn {{
+            from {{ opacity: 0; transform: translateY(10px) scale(0.98); }}
+            to {{ opacity: 1; transform: translateY(0) scale(1); }}
+        }}
         @keyframes fadeIn {{ from {{ opacity: 0; }} to {{ opacity: 1; }} }}
         @keyframes popIn {{
             from {{ opacity: 0; transform: scale(0.94); }}
@@ -158,6 +195,7 @@ def load_css(theme: str = "light") -> None:
             background: linear-gradient(135deg, var(--surface) 0%, var(--bg-elevated) 100%);
             border: 1px solid var(--border); border-radius: 20px; padding: 22px 24px;
             margin-bottom: 18px; box-shadow: var(--shadow); position: relative; overflow: hidden;
+            animation: floatIn 0.55s ease both;
         }}
         .page-hero::after {{
             content: ""; position: absolute; inset: auto -30px -40px auto; width: 180px; height: 180px;
@@ -196,7 +234,7 @@ def load_css(theme: str = "light") -> None:
             animation: popIn 0.35s ease both;
         }}
         .metric-card:hover {{
-            transform: translateY(-3px); box-shadow: var(--glow);
+            transform: translateY(-3px) scale(1.01); box-shadow: var(--glow);
         }}
         .metric-icon {{ font-size: 22px; margin-bottom: 6px; }}
         .metric-value {{
@@ -230,7 +268,7 @@ def load_css(theme: str = "light") -> None:
             box-shadow: var(--shadow); transition: box-shadow 0.18s ease, transform 0.18s ease;
             animation: fadeSlideIn 0.35s ease both;
         }}
-        .source-card:hover {{ box-shadow: var(--glow); transform: translateX(2px); }}
+        .source-card:hover {{ box-shadow: var(--glow); transform: translateX(2px) scale(1.01); }}
         .source-badge {{
             display: inline-flex; align-items: center; justify-content: center;
             width: 22px; height: 22px; border-radius: 50%; background: var(--accent-soft);
@@ -273,7 +311,7 @@ def load_css(theme: str = "light") -> None:
 
         /* ---------- buttons ---------- */
         .stButton > button, .stDownloadButton > button {{
-            border-radius: 999px !important; transition: transform 0.12s ease, box-shadow 0.12s ease;
+            border-radius: 999px !important; transition: transform 0.16s ease, box-shadow 0.16s ease;
             padding: 0.45rem 0.8rem !important;
         }}
         .stButton > button:hover, .stDownloadButton > button:hover {{ transform: translateY(-1px); box-shadow: var(--shadow); }}
@@ -290,6 +328,7 @@ def load_css(theme: str = "light") -> None:
         .stRadio > div {{ gap: 8px; }}
         .stTextInput > div > div > input:focus, .stTextArea > div > div > textarea:focus {{
             border-color: var(--primary) !important; box-shadow: 0 0 0 2px rgba(54,47,120,0.16) !important;
+            transform: translateY(-1px);
         }}
         .stTabs [data-testid="stBaseButton-secondary"] {{
             border-radius: 999px !important; border: 1px solid var(--border) !important; padding: 0.25rem 0.7rem !important;

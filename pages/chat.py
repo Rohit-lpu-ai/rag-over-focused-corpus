@@ -1,8 +1,10 @@
 """Chat page: ask questions, see cited answers, manage prompt history."""
 
+import json
 from datetime import datetime
 
 import streamlit as st
+import streamlit.components.v1 as components
 
 from pyfiles.retrieval import retrieve_documents
 from pyfiles.generation import generate_answer
@@ -11,6 +13,90 @@ from utils.constants import APP_NAME, APP_TAGLINE
 
 USER_AVATAR = "🧑‍🎓"
 AI_AVATAR = "📚"
+
+
+def _render_voice_assistant() -> None:
+    """Render a lightweight browser voice UI for speech-to-text."""
+    components.html(
+        """
+        <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--border);border-radius:14px;background:var(--bg-elevated);box-shadow:var(--shadow);max-width:460px;margin:10px 0 12px 0;">
+            <button id="voice-btn" style="border:none;border-radius:999px;padding:10px 14px;background:var(--primary);color:var(--primary-text);font-weight:600;cursor:pointer;">🎤 Start listening</button>
+            <div id="voice-status" style="font-size:13px;color:var(--text-muted);">Tap to speak a question.</div>
+        </div>
+        <script>
+            const btn = document.getElementById('voice-btn');
+            const status = document.getElementById('voice-status');
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            let recognition = null;
+
+            if (SpeechRecognition) {
+                recognition = new SpeechRecognition();
+                recognition.continuous = false;
+                recognition.interimResults = false;
+                recognition.lang = 'en-US';
+                recognition.onstart = () => {
+                    btn.textContent = '🛑 Stop';
+                    status.textContent = 'Listening...';
+                    btn.dataset.listening = 'true';
+                };
+                recognition.onresult = (event) => {
+                    const transcript = Array.from(event.results).map((r) => r[0].transcript).join(' ').trim();
+                    if (transcript) {
+                        status.textContent = 'Heard: ' + transcript;
+                        const url = new URL(window.location.href);
+                        url.searchParams.set('voice_question', transcript);
+                        window.history.replaceState({}, '', url);
+                        window.location.reload();
+                    } else {
+                        status.textContent = 'No speech detected.';
+                    }
+                };
+                recognition.onerror = () => {
+                    status.textContent = 'Voice input is unavailable in this browser.';
+                    btn.textContent = '🎤 Start listening';
+                    btn.dataset.listening = 'false';
+                };
+                recognition.onend = () => {
+                    btn.textContent = '🎤 Start listening';
+                    btn.dataset.listening = 'false';
+                };
+            } else {
+                status.textContent = 'Voice input is not supported in this browser.';
+                btn.disabled = true;
+            }
+
+            btn.onclick = () => {
+                if (!recognition) return;
+                if (btn.dataset.listening === 'true') {
+                    recognition.stop();
+                    return;
+                }
+                recognition.start();
+            };
+        </script>
+        """,
+        height=120,
+    )
+
+
+def _render_voice_output(text: str) -> None:
+    """Render a tiny hidden component that speaks the provided text."""
+    if not text:
+        return
+    components.html(
+        f"""
+        <script>
+            if ('speechSynthesis' in window) {{
+                const utterance = new SpeechSynthesisUtterance({json.dumps(text)});
+                utterance.lang = 'en-US';
+                utterance.rate = 1.0;
+                window.speechSynthesis.cancel();
+                window.speechSynthesis.speak(utterance);
+            }}
+        </script>
+        """,
+        height=0,
+    )
 
 
 def _run_pipeline(question: str):
@@ -166,6 +252,15 @@ if "pending_question" in st.session_state:
 if "regenerate_question" in st.session_state:
     incoming_question = st.session_state.pop("regenerate_question")
 
+voice_question = st.query_params.get("voice_question", [""])[0].strip()
+if voice_question:
+    incoming_question = voice_question
+    st.query_params.clear()
+
+st.markdown("<div style='margin: 0 0 8px 0;'>", unsafe_allow_html=True)
+_render_voice_assistant()
+st.markdown("</div>", unsafe_allow_html=True)
+
 typed_question = st.chat_input("Ask a question about your documents...")
 question = incoming_question or typed_question
 
@@ -181,11 +276,14 @@ if question:
     with st.chat_message("assistant", avatar=AI_AVATAR):
         try:
             docs, answer = _run_pipeline(question)
+            if not answer or not str(answer).strip():
+                raise ValueError("The model returned an empty response.")
         except Exception as e:
             st.error(f"Something went wrong while answering: {e}")
             st.stop()
 
         st.markdown(answer)
+        _render_voice_output(answer)
         _render_sources(docs)
 
     st.session_state.messages.append(

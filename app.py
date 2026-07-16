@@ -25,35 +25,90 @@ st.set_page_config(
 # -------------------------------------------------
 # Session bootstrap
 # -------------------------------------------------
-if "theme" not in st.session_state:
-    st.session_state.theme = "light"
-if "messages" not in st.session_state:
-    st.session_state.messages = []
-if "search_history" not in st.session_state:
-    st.session_state.search_history = []
-if "pinned_prompts" not in st.session_state:
-    st.session_state.pinned_prompts = []
+
+defaults = {
+    "theme": "light",
+    "messages": [],
+    "search_history": [],
+    "pinned_prompts": [],
+    "pending_question": None,
+    "regenerate_question": None,
+}
+
+for key, value in defaults.items():
+    if key not in st.session_state:
+        st.session_state[key] = value
+
+# -------------------------------------------------
+# Load CSS
+# -------------------------------------------------
 
 load_css(st.session_state.theme)
 
 # -------------------------------------------------
 # Pages
 # -------------------------------------------------
-chat_page = st.Page("pages/chat.py", title="Chat", icon="💬", default=True)
-dashboard_page = st.Page("pages/dashboard.py", title="Dashboard", icon="📊")
-documents_page = st.Page("pages/documents.py", title="Documents", icon="📂")
-settings_page = st.Page("pages/settings.py", title="Settings", icon="⚙️")
-about_page = st.Page("pages/about.py", title="About", icon="ℹ️")
 
+chat_page = st.Page(
+    "pages/chat.py",
+    title="Chat",
+    icon="💬",
+    default=True,
+)
+
+dashboard_page = st.Page(
+    "pages/dashboard.py",
+    title="Dashboard",
+    icon="📊",
+)
+
+documents_page = st.Page(
+    "pages/documents.py",
+    title="Documents",
+    icon="📂",
+)
+
+settings_page = st.Page(
+    "pages/settings.py",
+    title="Settings",
+    icon="⚙️",
+)
+
+about_page = st.Page(
+    "pages/about.py",
+    title="About",
+    icon="ℹ️",
+)
+
+# Store page reference
 st.session_state.chat_page_ref = chat_page
+
+# -------------------------------------------------
+# Navigation
+# -------------------------------------------------
 
 nav = st.navigation(
     {
-        "StudyBuddy": [chat_page, dashboard_page, documents_page],
-        "": [settings_page, about_page],
+        "StudyBuddy": [
+            chat_page,
+            dashboard_page,
+            documents_page,
+        ],
+        "": [
+            settings_page,
+            about_page,
+        ],
     }
 )
 
+# -------------------------------------------------
+# Sidebar
+# -------------------------------------------------
+
 show_sidebar()
+
+# -------------------------------------------------
+# Run selected page
+# -------------------------------------------------
 
 nav.run()
