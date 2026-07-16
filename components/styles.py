@@ -26,7 +26,7 @@ def _theme_vars(theme: str) -> str:
     if theme == "dark":
         return """
         --bg:#14121F; --bg-elevated:#1D1A2E; --surface:#211E33; --surface-2:#282442;
-        --border:#332E4E; --text:#F1EDE3; --text-muted:#9C96B5;
+        --border:#3C3658; --text:#F8F5EC; --text-muted:#CFC8E8;
         --primary:#8A7FFF; --primary-hover:#A79CFF; --primary-text:#14121F;
         --accent:#F0B65C; --accent-soft:rgba(240,182,92,0.16);
         --success:#6FCB94; --success-soft:rgba(111,203,148,0.14);
@@ -61,10 +61,36 @@ def load_css(theme: str = "light") -> None:
         html, body, [class*="css"] {{
             font-family: 'Public Sans', sans-serif;
             color: var(--text);
+            transition: background-color 0.25s ease, color 0.25s ease;
+        }}
+        p, span, div, li, label, h1, h2, h3, h4, h5, h6 {{
+            color: var(--text);
+        }}
+        .stMarkdown, .stTextInput, .stTextArea, .stSelectbox, .stMultiSelect, .stNumberInput, .stDateInput {{
+            color: var(--text) !important;
+        }}
+        .st-emotion-cache-1wmy9hl, .st-emotion-cache-1v0mbdj, .st-emotion-cache-13k62yr {{
+            color: var(--text) !important;
         }}
 
         .stApp {{
             background: var(--bg);
+            transition: background 0.25s ease;
+        }}
+
+        .theme-picker-card {{
+            background: var(--surface); border: 1px solid var(--border); border-radius: 14px;
+            padding: 10px; margin-bottom: 10px; box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
+        }}
+        .theme-picker-card .theme-label {{
+            font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted);
+            margin-bottom: 8px; font-weight: 600;
+        }}
+        .theme-preview {{
+            display: flex; gap: 8px; align-items: center; margin-top: 8px; font-size: 12px; color: var(--text-muted);
+        }}
+        .theme-preview .dot {{
+            width: 8px; height: 8px; border-radius: 50%; background: var(--accent); display: inline-block;
         }}
 
         /* ---------- animated ambient background (respects reduced motion) ---------- */
@@ -104,6 +130,7 @@ def load_css(theme: str = "light") -> None:
         .brand-subtitle {{
             font-family: 'Public Sans', sans-serif; font-size: 16px; color: var(--text-muted);
             margin-top: 4px; margin-bottom: 18px; animation: fadeSlideIn 0.6s ease 0.1s both;
+            font-weight: 500;
         }}
         .eyebrow {{
             font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.08em;
@@ -127,6 +154,40 @@ def load_css(theme: str = "light") -> None:
             backdrop-filter: blur(6px);
         }}
 
+        .page-hero {{
+            background: linear-gradient(135deg, var(--surface) 0%, var(--bg-elevated) 100%);
+            border: 1px solid var(--border); border-radius: 20px; padding: 22px 24px;
+            margin-bottom: 18px; box-shadow: var(--shadow); position: relative; overflow: hidden;
+        }}
+        .page-hero::after {{
+            content: ""; position: absolute; inset: auto -30px -40px auto; width: 180px; height: 180px;
+            background: radial-gradient(circle, var(--accent-soft) 0%, transparent 70%);
+            pointer-events: none;
+        }}
+        .section-heading {{
+            display: flex; justify-content: space-between; align-items: center; gap: 12px;
+            margin: 8px 0 12px;
+        }}
+        .section-title {{
+            font-size: 18px; font-weight: 700; color: var(--text); margin: 0;
+        }}
+        .section-caption {{
+            font-size: 13px; color: var(--text-muted); margin-top: 4px;
+        }}
+        .pill-row {{ display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }}
+        .pill-row .score-pill {{ background: var(--bg-elevated); }}
+        .info-callout {{
+            border: 1px solid var(--border); border-left: 3px solid var(--accent);
+            background: var(--accent-soft); padding: 12px 14px; border-radius: 12px;
+            color: var(--text); margin: 8px 0 14px;
+        }}
+        .mini-card {{
+            background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 14px;
+            padding: 14px 16px; box-shadow: var(--shadow); margin-bottom: 12px;
+        }}
+        .mini-card .mini-title {{ font-weight: 700; color: var(--text); margin-bottom: 6px; }}
+        .mini-card .mini-sub {{ font-size: 13px; color: var(--text-muted); line-height: 1.5; }}
+
         /* ---------- metric / dashboard cards ---------- */
         .metric-card {{
             background: var(--bg-elevated); border: 1px solid var(--border);
@@ -148,11 +209,17 @@ def load_css(theme: str = "light") -> None:
 
         /* ---------- chat bubbles ---------- */
         div[data-testid="stChatMessage"] {{
-            animation: fadeSlideIn 0.3s ease both;
+            animation: fadeSlideIn 0.3s ease both; margin: 10px 0 16px; padding: 0;
         }}
+        div[data-testid="stChatMessageContent"] {{
+            background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 16px;
+            padding: 12px 14px; box-shadow: var(--shadow);
+            color: var(--text);
+        }}
+        div[data-testid="stChatMessageContent"] p {{ margin-bottom: 0.45rem; }}
         .msg-meta {{
             font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--text-muted);
-            margin-top: 4px;
+            margin-top: 6px;
         }}
 
         /* ---------- citation / source cards (signature element) ---------- */
@@ -176,7 +243,7 @@ def load_css(theme: str = "light") -> None:
             margin: 4px 0 8px 30px;
         }}
         .source-preview {{
-            font-size: 13px; color: var(--text-muted); margin-left: 30px; line-height: 1.5;
+            font-size: 13px; color: var(--text); margin-left: 30px; line-height: 1.5;
         }}
 
         /* ---------- pills / badges ---------- */
@@ -187,7 +254,7 @@ def load_css(theme: str = "light") -> None:
         }}
         .status-pill {{
             display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px;
-            border-radius: 999px; font-size: 12px; font-weight: 500;
+            border-radius: 999px; font-size: 12px; font-weight: 600;
         }}
         .status-pill.ok {{ background: var(--success-soft); color: var(--success); }}
         .status-pill.dot {{
@@ -205,12 +272,36 @@ def load_css(theme: str = "light") -> None:
         }}
 
         /* ---------- buttons ---------- */
-        .stButton > button {{
-            border-radius: 10px !important; transition: transform 0.12s ease, box-shadow 0.12s ease;
+        .stButton > button, .stDownloadButton > button {{
+            border-radius: 999px !important; transition: transform 0.12s ease, box-shadow 0.12s ease;
+            padding: 0.45rem 0.8rem !important;
         }}
-        .stButton > button:hover {{ transform: translateY(-1px); box-shadow: var(--shadow); }}
+        .stButton > button:hover, .stDownloadButton > button:hover {{ transform: translateY(-1px); box-shadow: var(--shadow); }}
         .stButton > button[kind="primary"] {{
-            background: var(--primary) !important; border-color: var(--primary) !important;
+            background: var(--primary) !important; border-color: var(--primary) !important; color: var(--primary-text) !important;
+        }}
+        .stTextInput > div > div > input, .stTextArea > div > div > textarea {{
+            border-radius: 12px !important; border: 1px solid var(--border) !important;
+            background: var(--bg-elevated) !important; color: var(--text) !important;
+            box-shadow: inset 0 1px 2px rgba(0,0,0,0.03);
+            font-weight: 500;
+        }}
+        .stRadio > label {{ font-size: 13px; color: var(--text-muted); }}
+        .stRadio > div {{ gap: 8px; }}
+        .stTextInput > div > div > input:focus, .stTextArea > div > div > textarea:focus {{
+            border-color: var(--primary) !important; box-shadow: 0 0 0 2px rgba(54,47,120,0.16) !important;
+        }}
+        .stTabs [data-testid="stBaseButton-secondary"] {{
+            border-radius: 999px !important; border: 1px solid var(--border) !important; padding: 0.25rem 0.7rem !important;
+        }}
+        .stExpander {{
+            border: 1px solid var(--border) !important; border-radius: 14px !important; background: var(--bg-elevated) !important;
+            box-shadow: var(--shadow);
+        }}
+        .stAlert {{ border-radius: 12px !important; border: 1px solid var(--border) !important; }}
+        .stChatInput {{
+            border: 1px solid var(--border) !important; border-radius: 16px !important; padding: 6px 8px !important;
+            background: var(--bg-elevated) !important; box-shadow: var(--shadow);
         }}
 
         /* ---------- skeleton loader ---------- */
@@ -231,8 +322,10 @@ def load_css(theme: str = "light") -> None:
         .app-footer a {{ color: var(--accent); text-decoration: none; }}
 
         /* ---------- misc ---------- */
-        .block-container {{ max-width: 900px; }}
-        [data-testid="stSidebar"] {{ border-right: 1px solid var(--border); }}
+        .block-container {{ max-width: 1100px; padding-top: 1.25rem; padding-bottom: 2rem; }}
+        [data-testid="stSidebar"] {{ border-right: 1px solid var(--border); background: linear-gradient(180deg, var(--bg-elevated), var(--bg)); }}
+        [data-testid="stSidebarContent"] {{ padding-top: 6px; }}
+        [data-testid="stSidebarUserContent"] {{ gap: 8px; }}
         </style>
 
         <div class="ambient-bg"><span></span><span></span><span></span></div>

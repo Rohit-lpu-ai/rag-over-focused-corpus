@@ -31,15 +31,32 @@ def show_sidebar() -> None:
 
         # Theme switcher
         st.caption("Appearance")
-        theme_choice = st.toggle(
-            "🌙 Dark mode",
-            value=(st.session_state.get("theme", "light") == "dark"),
-            key="theme_toggle",
+        st.markdown('<div class="theme-picker-card">', unsafe_allow_html=True)
+        current_theme = st.session_state.get("theme", "light")
+        col1, col2 = st.columns(2)
+        with col1:
+            if st.button(
+                "☀️ Light",
+                use_container_width=True,
+                type="primary" if current_theme == "light" else "secondary",
+                key="theme_light",
+            ):
+                st.session_state.theme = "light"
+                st.rerun()
+        with col2:
+            if st.button(
+                "🌙 Dark",
+                use_container_width=True,
+                type="primary" if current_theme == "dark" else "secondary",
+                key="theme_dark",
+            ):
+                st.session_state.theme = "dark"
+                st.rerun()
+        st.markdown(
+            f'<div class="theme-preview"><span class="dot"></span>{"Night study mode" if current_theme == "dark" else "Bright reading mode"}</div>',
+            unsafe_allow_html=True,
         )
-        new_theme = "dark" if theme_choice else "light"
-        if new_theme != st.session_state.get("theme", "light"):
-            st.session_state.theme = new_theme
-            st.rerun()
+        st.markdown('</div>', unsafe_allow_html=True)
 
         st.markdown("---")
 

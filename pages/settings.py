@@ -4,20 +4,50 @@ import streamlit as st
 
 from utils.constants import EMBEDDING_MODEL, GENERATION_MODEL, VECTOR_DB
 
-st.markdown('<p class="brand-title">⚙️ Settings</p>', unsafe_allow_html=True)
-st.markdown('<p class="brand-subtitle">Preferences for this session</p>', unsafe_allow_html=True)
+st.markdown(
+    """
+    <div class="page-hero">
+        <div class="eyebrow">Preferences</div>
+        <div class="brand-title">⚙️ Settings</div>
+        <div class="brand-subtitle">Preferences for this session</div>
+        <div class="pill-row">
+            <span class="score-pill">Theme controls</span>
+            <span class="score-pill">Session tools</span>
+            <span class="score-pill">Model reference</span>
+        </div>
+    </div>
+    """,
+    unsafe_allow_html=True,
+)
 
 st.markdown("#### Appearance")
-theme_choice = st.radio(
-    "Theme",
-    ["light", "dark"],
-    index=0 if st.session_state.get("theme", "light") == "light" else 1,
-    horizontal=True,
-    format_func=lambda t: "☀️ Light" if t == "light" else "🌙 Dark",
+st.markdown('<div class="theme-picker-card">', unsafe_allow_html=True)
+current_theme = st.session_state.get("theme", "light")
+col1, col2 = st.columns(2)
+with col1:
+    if st.button(
+        "☀️ Light",
+        use_container_width=True,
+        type="primary" if current_theme == "light" else "secondary",
+        key="settings_theme_light",
+    ):
+        st.session_state.theme = "light"
+        st.rerun()
+with col2:
+    if st.button(
+        "🌙 Dark",
+        use_container_width=True,
+        type="primary" if current_theme == "dark" else "secondary",
+        key="settings_theme_dark",
+    ):
+        st.session_state.theme = "dark"
+        st.rerun()
+
+st.markdown(
+    f'<div class="theme-preview"><span class="dot"></span>{"Night study mode" if current_theme == "dark" else "Bright reading mode"}</div>',
+    unsafe_allow_html=True,
 )
-if theme_choice != st.session_state.get("theme", "light"):
-    st.session_state.theme = theme_choice
-    st.rerun()
+st.markdown('</div>', unsafe_allow_html=True)
 
 st.divider()
 

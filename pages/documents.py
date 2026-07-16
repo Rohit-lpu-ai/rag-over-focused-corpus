@@ -47,9 +47,19 @@ def _confirm_delete(filenames: list) -> None:
         st.rerun()
 
 
-st.markdown('<p class="brand-title">📂 Document Manager</p>', unsafe_allow_html=True)
 st.markdown(
-    f'<p class="brand-subtitle">Upload, inspect, and manage the PDFs {APP_NAME} learns from.</p>',
+    f"""
+    <div class="page-hero">
+        <div class="eyebrow">Knowledge base</div>
+        <div class="brand-title">📂 Document Manager</div>
+        <div class="brand-subtitle">Upload, inspect, and manage the PDFs {APP_NAME} learns from.</div>
+        <div class="pill-row">
+            <span class="score-pill">PDF ingestion</span>
+            <span class="score-pill">Chunked indexing</span>
+            <span class="score-pill">Quick cleanup</span>
+        </div>
+    </div>
+    """,
     unsafe_allow_html=True,
 )
 

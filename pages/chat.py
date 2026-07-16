@@ -93,8 +93,21 @@ def _render_message(msg: dict, index: int) -> None:
 # -------------------------------------------------
 # Header
 # -------------------------------------------------
-st.markdown(f'<p class="brand-title">📚 {APP_NAME}</p>', unsafe_allow_html=True)
-st.markdown(f'<p class="brand-subtitle">{APP_TAGLINE}</p>', unsafe_allow_html=True)
+st.markdown(
+    f"""
+    <div class="page-hero">
+        <div class="eyebrow">Study workspace</div>
+        <div class="brand-title">📚 {APP_NAME}</div>
+        <div class="brand-subtitle">{APP_TAGLINE}</div>
+        <div class="pill-row">
+            <span class="score-pill">Grounded answers</span>
+            <span class="score-pill">Traceable sources</span>
+            <span class="score-pill">Private documents</span>
+        </div>
+    </div>
+    """,
+    unsafe_allow_html=True,
+)
 
 with st.expander("💡 Suggested prompts & recent questions", expanded=False):
     tab1, tab2 = st.tabs(["Suggested", "Recent"])
@@ -124,6 +137,19 @@ with st.expander("💡 Suggested prompts & recent questions", expanded=False):
                 st.rerun()
 
 st.divider()
+
+st.markdown(
+    """
+    <div class="mini-card">
+        <div class="mini-title">How this workspace works</div>
+        <div class="mini-sub">
+            Ask a question, review the grounded answer, and inspect the source chunks that support it.
+            Everything stays anchored to the documents you uploaded.
+        </div>
+    </div>
+    """,
+    unsafe_allow_html=True,
+)
 
 # -------------------------------------------------
 # Message history

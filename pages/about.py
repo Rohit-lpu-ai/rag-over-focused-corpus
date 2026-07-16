@@ -4,9 +4,19 @@ import streamlit as st
 
 from utils.constants import APP_NAME, APP_VERSION, GITHUB_URL, LICENSE
 
-st.markdown(f'<p class="brand-title">ℹ️ About {APP_NAME}</p>', unsafe_allow_html=True)
 st.markdown(
-    '<p class="brand-subtitle">A RAG-powered study assistant for your own documents.</p>',
+    f"""
+    <div class="page-hero">
+        <div class="eyebrow">About</div>
+        <div class="brand-title">ℹ️ About {APP_NAME}</div>
+        <div class="brand-subtitle">A RAG-powered study assistant for your own documents.</div>
+        <div class="pill-row">
+            <span class="score-pill">Traceable answers</span>
+            <span class="score-pill">Private knowledge base</span>
+            <span class="score-pill">Built with Streamlit</span>
+        </div>
+    </div>
+    """,
     unsafe_allow_html=True,
 )
 

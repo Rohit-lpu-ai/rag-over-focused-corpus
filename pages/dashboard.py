@@ -5,9 +5,19 @@ import streamlit as st
 from utils import kb_manager, stats_tracker
 from utils.constants import APP_NAME, EMBEDDING_MODEL, GENERATION_MODEL, VECTOR_DB
 
-st.markdown('<p class="brand-title">📊 Dashboard</p>', unsafe_allow_html=True)
 st.markdown(
-    f'<p class="brand-subtitle">System overview for {APP_NAME}</p>',
+    f"""
+    <div class="page-hero">
+        <div class="eyebrow">Operations overview</div>
+        <div class="brand-title">📊 Dashboard</div>
+        <div class="brand-subtitle">System overview for {APP_NAME}</div>
+        <div class="pill-row">
+            <span class="score-pill">Realtime status</span>
+            <span class="score-pill">Knowledge base health</span>
+            <span class="score-pill">Usage insights</span>
+        </div>
+    </div>
+    """,
     unsafe_allow_html=True,
 )
 

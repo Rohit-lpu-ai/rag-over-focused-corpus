@@ -1,8 +1,14 @@
 import os
-from dotenv import load_dotenv
-import google.generativeai as genai
+from pathlib import Path
 
-load_dotenv()
+from dotenv import load_dotenv
+
+try:
+    import google.generativeai as genai
+except ImportError:  # pragma: no cover - defensive fallback for environments without SDK
+    genai = None
+
+load_dotenv(dotenv_path=Path(__file__).resolve().parents[1] / ".env")
 
 
 def configure_gemini():
@@ -10,12 +16,15 @@ def configure_gemini():
     Configure Gemini using the GOOGLE_API_KEY environment variable.
     """
 
+    if genai is None:
+        raise ImportError(
+            "The 'google-generativeai' package is not installed. Install it with 'pip install google-generativeai'."
+        )
+
     api_key = os.getenv("GOOGLE_API_KEY")
 
     if not api_key:
-        raise ValueError(
-            "GOOGLE_API_KEY environment variable not found."
-        )
+        raise ValueError("GOOGLE_API_KEY environment variable not found.")
 
     genai.configure(api_key=api_key)
 
