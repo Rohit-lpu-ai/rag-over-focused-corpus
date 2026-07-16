@@ -1,0 +1,10 @@
+"""Static display constants shared across pages (not backend config)."""
+
+APP_NAME = "StudyBuddy AI"
+APP_TAGLINE = "AI-powered document Q&A using Retrieval-Augmented Generation"
+APP_VERSION = "1.0.0"
+GENERATION_MODEL = "Gemini 2.5 Flash"
+EMBEDDING_MODEL = "BAAI/bge-small-en-v1.5 (BGE)"
+VECTOR_DB = "ChromaDB (persistent)"
+GITHUB_URL = "https://github.com/"
+LICENSE = "MIT"
