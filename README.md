@@ -1,4 +1,4 @@
-# Document Q&A — RAG over a Focused Corpus
+# StudyBuddy AI — Document Q&A: RAG over a Focused Corpus
 
 ## Problem Statement
 
@@ -20,90 +20,106 @@ Lovely Professional University
 
 This project implements a Retrieval-Augmented Generation (RAG) based Question Answering system over a focused collection of documents.
 
-The system allows users to upload and query documents in natural language and receive context-aware answers generated using Large Language Models (LLMs) and semantic search.
+Users upload PDF documents through a Streamlit application, ask questions in natural language, and receive context-aware answers grounded in the uploaded content, with every answer traceable back to the exact source chunk it came from.
 
 ---
 
-## Problem Statement
+## Problem Statement (Detail)
 
 Traditional LLMs suffer from hallucination and lack access to domain-specific knowledge.
 
-This project solves this problem by:
+This project addresses that by:
 
-* Retrieving relevant information from a focused corpus.
-* Providing grounded answers based on retrieved context.
-* Displaying source citations for transparency.
+* Retrieving relevant information from a focused corpus using semantic search.
+* Providing grounded answers based only on retrieved context.
+* Displaying source citations — document, chunk number, and similarity score — for transparency.
 
 ---
 
 ## 🚀 Features
 
-* PDF document ingestion
-* Automatic text extraction
-* Intelligent chunking strategy
-* Semantic search using embeddings
-* Vector database storage
-* Context-aware answer generation
-* Source citation support
-* User-friendly interface
-* Evaluation pipeline
+* Multi-document PDF ingestion via drag-and-drop upload
+* Automatic text extraction and duplicate-file detection
+* Recursive-character chunking with configurable overlap
+* Semantic search using sentence-transformer embeddings
+* Persistent vector storage via ChromaDB (documents can be added/removed incrementally)
+* Context-aware answer generation via Google Gemini
+* Source citation cards (document, chunk #, similarity score, preview)
+* Document manager: rename, delete (with confirmation), multi-select bulk delete
+* Dashboard with live knowledge-base metrics (documents, chunks, storage used, success rate, avg. response time)
+* Configurable generation model and temperature from the Settings page
+* Knowledge-base maintenance: rebuild index, clear cache, reset chat, export data
+* Light/dark theme with a persistent, app-wide toggle
+* Chat history, favorited answers, and full-conversation export
+* Evaluation pipeline *(in progress — see Current Progress)*
 
 ---
 
 ## Architecture
 
+```
 Documents
-↓
-Document Loader
-↓
-Text Chunking
-↓
-Embedding Generation
-↓
-Vector Database
-↓
-Retriever
-↓
-LLM
-↓
-Answer Generation
+  ↓
+Document Loader (pypdf)
+  ↓
+Text Chunking (LangChain text splitters)
+  ↓
+Embedding Generation (Sentence-Transformers)
+  ↓
+Vector Database (ChromaDB)
+  ↓
+Retriever (semantic similarity search)
+  ↓
+LLM (Google Gemini)
+  ↓
+Answer Generation + Source Citations
+```
+
+The Streamlit frontend (`app.py` + `pages/`) sits on top of this pipeline and never modifies the core retrieval/generation logic in `pyfiles/` — all document-management, stats, and UI orchestration lives in `utils/` as an additive layer.
 
 ---
 
 ## Tech Stack
 
-| Component            | Technology            |
-| -------------------- | --------------------- |
-| Programming Language | Python                |
-| Framework            | LangChain             |
-| Embedding Model      | Sentence Transformers |
-| Vector Database      | ChromaDB              |
-| LLM                  | OpenAI GPT            |
-| Frontend             | Streamlit             |
-| PDF Processing       | PyMuPDF               |
-| Deployment           | Streamlit Cloud       |
+| Component             | Technology                                  |
+| ---------------------- | -------------------------------------------- |
+| Programming Language   | Python                                       |
+| Frontend               | Streamlit (native multipage navigation)      |
+| PDF Processing         | pypdf                                        |
+| Text Chunking          | LangChain text splitters                     |
+| Embedding Model        | Sentence-Transformers (`BAAI/bge-small-en-v1.5`) |
+| Vector Database        | ChromaDB (persistent, local)                 |
+| LLM                    | Google Gemini (`gemini-2.5-flash`, configurable) |
+| Deployment              | Local (Streamlit Cloud planned)              |
 
 ---
 
 ## 🏗️ Project Structure
 
-## 📁 Project Structure
-
 ```text
-rag-over-focused-corpus/
+RAG focused corpus/
 │
-├── data/
-│   ├── Raw/                     # Source PDF documents
-│   │   ├── Academic Calendar for Full Time Programmes.pdf  # For testing only
-│   │   └── AiMlReportFinal.pdf  # For testing only 
-│   │
-│   ├── processed/
-│   │   ├── chunks.pkl
-│   │   └── embeddings.pkl
-│   │
-│   └── chroma_db/               # Persistent ChromaDB database
+├── app.py                       # Streamlit entry point (page config, theme, navigation)
 │
-├── pyfiles/                     # Reusable Python modules
+├── pages/                       # One file per app page (native st.navigation)
+│   ├── chat.py                  # Chat interface, source citations, favorites, export
+│   ├── dashboard.py             # Live KB metrics, gauges, response-time trend
+│   ├── documents.py             # Document manager: upload, rename, delete
+│   ├── settings.py              # Theme, model/temperature, KB maintenance
+│   └── about.py                 # Project overview, pipeline diagram, roadmap
+│
+├── components/                  # Shared UI building blocks
+│   ├── styles.py                 # Design system: theme tokens, CSS, animated background
+│   └── sidebar.py                # Sidebar: branding, KB status, theme toggle, quick actions
+│
+├── utils/                        # Additive orchestration layer (does not modify pyfiles/)
+│   ├── kb_manager.py              # Multi-document add/delete/rename/rebuild against ChromaDB
+│   ├── metadata_store.py          # JSON-backed file metadata + duplicate detection
+│   ├── stats_tracker.py           # Query counts, response times, success rate
+│   ├── constants.py               # Shared display constants (model names, version)
+│   └── html.py                    # Safe HTML injection helper for st.markdown
+│
+├── pyfiles/                     # Core RAG pipeline (backend — not modified by the frontend)
 │   ├── __init__.py
 │   ├── ingestion.py
 │   ├── chunking.py
@@ -112,7 +128,7 @@ rag-over-focused-corpus/
 │   ├── retrieval.py
 │   └── generation.py
 │
-├── src/                         # Jupyter notebooks
+├── src/                          # Original Jupyter notebooks (pipeline prototyping)
 │   ├── ingest.ipynb
 │   ├── chunking.ipynb
 │   ├── Embedding.ipynb
@@ -122,50 +138,48 @@ rag-over-focused-corpus/
 │   ├── evaluation.ipynb
 │   └── ingest.py
 │
-├── evaluation/                  # Evaluation outputs
+├── data/
+│   ├── raw/                      # Uploaded source PDFs
+│   ├── processed/                # chunks.pkl, embeddings.pkl (notebook pipeline artifacts)
+│   ├── chroma_db/                 # Persistent ChromaDB store
+│   ├── doc_metadata.json          # Per-document metadata (size, pages, upload date, hash)
+│   └── usage_stats.json           # Query counts, response times, success rate
 │
-├── docs/                        # Project documentation
-│
-├── tests/                       # Testing scripts (optional)
+├── evaluation/                   # Evaluation outputs
+├── docs/                         # Project documentation
+├── tests/                        # Testing scripts (optional)
 │
 ├── README.md
 ├── requirements.txt
 └── test_imports.py
 ```
-```
+
+---
+
 ## Current Progress
 
 ### Completed
 - Project setup and repository creation
-- PDF ingestion pipeline using PyPDF
-- Document loading from local corpus
-- Text chunking using RecursiveCharacterTextSplitter
+- PDF ingestion pipeline using pypdf
+- Text chunking using `RecursiveCharacterTextSplitter`
 - Embedding generation using BGE Small (`BAAI/bge-small-en-v1.5`)
-- Created 103 semantic chunks from the document corpus
-- Generated embeddings of shape `(103, 384)`
+- ChromaDB vector database integration, with support for incremental multi-document add/delete/rename
+- Semantic retrieval pipeline
+- LLM integration (Google Gemini) with configurable model and temperature
+- Source citation support (document, chunk, similarity score)
+- Full Streamlit UI: chat, dashboard, document manager, settings, about — with light/dark theming
 
 ### In Progress
-- Vector database integration using ChromaDB
-- Semantic retrieval pipeline
+- Evaluation framework (retrieval accuracy, answer relevance, faithfulness)
+- True token-by-token streaming responses
 
 ### Upcoming
-- LLM integration
-- Citation support
-- Streamlit UI
-- Evaluation framework
+- In-app PDF preview / page-level citation jump
 - Compare Two Documents feature
+- Multi-user knowledge bases
+
 ---
 
-# Week 2 Learning Summary
-
-- Learned the fundamentals of Retrieval-Augmented Generation (RAG).
-- Explored PDF parsing and document ingestion using PyPDF.
-- Implemented text chunking using LangChain text splitters.
-- Generated semantic embeddings using the BGE embedding model.
-- Learned the difference between keyword search and semantic search.
-- Gained hands-on experience with Git, GitHub, and Jupyter notebooks.
-- Successfully processed documents into 103 chunks with 384-dimensional embeddings.
-- Adopted a modular notebook-based workflow for building the RAG pipeline.
 ## Installation
 
 ### Clone the Repository
@@ -181,6 +195,8 @@ cd rag-over-focused-corpus
 python -m venv venv
 ```
 
+> On Windows, if `python` isn't recognized, use `py -m venv venv` instead.
+
 ### Activate Environment
 
 #### Windows
@@ -189,7 +205,7 @@ python -m venv venv
 venv\Scripts\activate
 ```
 
-#### Linux/MacOS
+#### Linux/macOS
 
 ```bash
 source venv/bin/activate
@@ -198,35 +214,45 @@ source venv/bin/activate
 ### Install Dependencies
 
 ```bash
-pip install -r requirements.txt
+python -m pip install -r requirements.txt
 ```
+
+### Configure Environment Variables
+
+Create a `.env` file in the project root:
+
+```
+GOOGLE_API_KEY=your_key_here
+```
+
+Get a key from [Google AI Studio](https://aistudio.google.com/apikey).
 
 ---
 
 ## Running the Application
 
+Run from the project root (not from inside `pages/` or `pyfiles/`, since ChromaDB and `data/raw/` paths are resolved relative to the working directory):
+
 ```bash
 streamlit run app.py
 ```
+
+The app opens at `http://localhost:8501`.
 
 ---
 
 ## Data Source
 
-The project uses a focused corpus of documents for retrieval and question answering.
-
-Corpus:
-
-* To be finalized.
+The project uses a focused corpus of PDF documents for retrieval and question answering, uploaded directly through the app's Document Manager. Two sample documents are included under `data/raw/` for testing.
 
 ---
 
 ## Example Questions
 
+* What is Retrieval-Augmented Generation?
 * What are the deliverables for Week 2?
 * What is the late submission policy?
-* How many ADRs are required?
-* What are the requirements for Milestone 1?
+* What does the AI/ML report conclude?
 
 ---
 
@@ -265,7 +291,8 @@ pytest
 
 * Supports English documents only.
 * Performance may decrease for extremely large corpora.
-* Currently optimized for PDF documents.
+* Currently optimized for text-based (non-scanned) PDF documents.
+* No true token-by-token streaming yet — answers appear once fully generated.
 
 ---
 
