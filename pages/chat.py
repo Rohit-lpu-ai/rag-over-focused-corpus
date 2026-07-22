@@ -252,17 +252,36 @@ with st.expander("💡 Suggested prompts & recent questions", expanded=False):
             if c2.button("Ask", key=f"suggest_{q}"):
                 st.session_state.pending_question = q
                 st.rerun()
-    with tab2:
-        if not st.session_state.search_history:
-            st.caption("No recent questions yet.")
-        else:
-            for q in reversed(st.session_state.search_history[-8:]):
-                c1, c2 = st.columns([5, 1])
-                c1.write(f"• {q}")
-                if c2.button("Ask", key=f"recent_{q}_{id(q)}"):
-                    st.session_state.pending_question = q
-                    st.rerun()
-            if st.button("🗑️ Clear recent history"):
+        with tab2:
+            if not st.session_state.search_history:
+                st.caption("No recent questions yet.")
+            else:
+                # Get the last 8 questions and reverse their order
+                # so the most recent question appears first.
+                recent_questions = list(
+                    reversed(st.session_state.search_history[-8:])
+                )
+
+                for i, q in enumerate(recent_questions):
+                    c1, c2 = st.columns([5, 1])
+
+                    c1.write(f"• {q}")
+
+                    # Use the question's position as part of the key.
+                    # This prevents StreamlitDuplicateElementKey errors
+                    # when the same question appears multiple times.
+                    if c2.button(
+                        "Ask",
+                        key=f"recent_question_{i}",
+                    ):
+                        st.session_state.pending_question = q
+                        st.rerun()
+
+            # Unique key for the clear history button
+            if st.button(
+                "🗑️ Clear recent history",
+                key="clear_recent_history",
+            ):
                 st.session_state.search_history = []
                 st.rerun()
 
