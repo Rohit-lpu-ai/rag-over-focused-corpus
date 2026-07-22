@@ -182,47 +182,39 @@ StudyBuddy AI includes:
 
 ---
 
-# 🖼️ Application Preview
+## 🖥️ Application Preview
 
-> 📸 **Replace the placeholder images below with screenshots from your actual StudyBuddy AI application.**
+StudyBuddy AI provides a modern, interactive workspace for document-grounded question answering, knowledge-base management, analytics, and voice-enabled interaction.
 
-### 💬 Chat Interface
+### 💬 AI Chat Interface
 
-![Chat Interface Preview](path/to/chat-interface.png)
+![StudyBuddy AI Chat Interface](assets/chat.png)
 
-*📸 Screenshot to add: The main StudyBuddy AI chat interface showing a user question, generated answer, voice assistant, and source citation cards.*
+*The main StudyBuddy AI chat workspace where users can ask questions about their uploaded documents and receive grounded answers with traceable source citations.*
+
+---
+
+### 📊 Knowledge Base Dashboard
+
+![StudyBuddy AI Dashboard](assets/dashboard.png)
+
+*The dashboard provides an overview of the knowledge base, document statistics, query activity, system performance, and other key metrics.*
 
 ---
 
 ### 📂 Document Manager
 
-![Document Manager Preview](path/to/document-manager.png)
+![StudyBuddy AI Document Manager](assets/document_manager.png)
 
-*📸 Screenshot to add: The Documents page showing uploaded PDFs, document management actions, and knowledge-base controls.*
-
----
-
-### 📊 Dashboard
-
-![Dashboard Preview](path/to/dashboard.png)
-
-*📸 Screenshot to add: The Dashboard showing document count, chunks, storage usage, success rate, and average response time.*
-
----
-
-### ⚙️ Settings
-
-![Settings Preview](path/to/settings.png)
-
-*📸 Screenshot to add: The Settings page showing theme controls, model configuration, temperature, and knowledge-base maintenance options.*
+*The document management interface allows users to upload, manage, rename, and remove documents from the knowledge base.*
 
 ---
 
 ### 🎤 Voice Assistant
 
-![Voice Assistant Preview](path/to/voice-assistant.png)
+![StudyBuddy AI Voice Assistant](assets/Voice_assistant.png)
 
-*📸 Screenshot to add: The chat interface while the voice assistant is actively listening and displaying the recognized question.*
+*The integrated voice assistant enables users to interact with StudyBuddy AI using speech-to-text input and receive AI-generated responses through text-to-speech output.*
 
 ---
 
@@ -817,7 +809,16 @@ This project is licensed under the **MIT License**.
 
 # 🙏 Acknowledgements
 
-Special thanks to:
+This project was developed as part of the **Futurense Technologies Internship Program** and the **Foundations of Applied Machine Learning** segment.
+
+Special thanks to the mentors and instructors whose guidance, feedback, and continuous support contributed significantly to the development and improvement of this project:
+
+- 👩‍🏫 **Gurpreet Ma'am** — For her valuable guidance, mentorship, and continuous encouragement throughout the internship journey.
+- 👨‍🏫 **Aalakh Sir** — For his technical guidance, valuable feedback, and support during the development process.
+- 👨‍🏫 **Arvind Sir** — For his mentorship, insights, and guidance in strengthening the technical and practical aspects of the project.
+
+Additional thanks to:
+
 
 * 💼 **Futurense Technologies Internship Program**
 * 🏫 **Lovely Professional University**
