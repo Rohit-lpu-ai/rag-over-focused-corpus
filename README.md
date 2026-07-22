@@ -813,9 +813,10 @@ This project was developed as part of the **Futurense Technologies Internship Pr
 
 Special thanks to the mentors and instructors whose guidance, feedback, and continuous support contributed significantly to the development and improvement of this project:
 
-- 👩‍🏫 **Gurpreet Ma'am** — For her valuable guidance, mentorship, and continuous encouragement throughout the internship journey.
-- 👨‍🏫 **Aalakh Sir** — For his technical guidance, valuable feedback, and support during the development process.
-- 👨‍🏫 **Arvind Sir** — For his mentorship, insights, and guidance in strengthening the technical and practical aspects of the project.
+- 👨‍💼 **Nishant Sir** — For his continuous mentorship, guidance, and support throughout my internship.
+- 👩‍🏫 **Gurpreet Ma'am** — For her valuable guidance and encouragement.
+- 👨‍🏫 **Aalakh Sir** — For his technical guidance and valuable feedback.
+- 👨‍🏫 **Arvind Sir** — For his mentorship and valuable insights.
 
 Additional thanks to:
 
@@ -838,6 +839,14 @@ Additional thanks to:
 🎓 B.Tech AI & Data Engineering
 🏫 Lovely Professional University
 💼 Futurense Technologies Internship Program
+
+---
+
+### 📬 Connect With Me
+
+- 📧 **Email:** rohit.sharma200156@gmail.com
+- 💼 **LinkedIn:** [Rohit Sharma](https://www.linkedin.com/in/rohit-sharma-b3985b323/)
+- 🐙 **GitHub:** [Rohit-lpu-ai](https://github.com/Rohit-lpu-ai)
 
 ---
 
