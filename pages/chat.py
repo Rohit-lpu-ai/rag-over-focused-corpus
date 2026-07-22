@@ -19,9 +19,9 @@ def _render_voice_assistant() -> None:
     """Render a lightweight browser voice UI for speech-to-text."""
     components.html(
         """
-        <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--border);border-radius:14px;background:var(--bg-elevated);box-shadow:var(--shadow);max-width:460px;margin:10px 0 12px 0;">
-            <button id="voice-btn" style="border:none;border-radius:999px;padding:10px 14px;background:var(--primary);color:var(--primary-text);font-weight:600;cursor:pointer;">🎤 Start listening</button>
-            <div id="voice-status" style="font-size:13px;color:var(--text-muted);">Tap to speak a question.</div>
+        <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid #ccc;border-radius:14px;background:#f9f9f9;max-width:460px;margin:10px 0;font-family:sans-serif;">
+            <button id="voice-btn" style="border:none;border-radius:999px;padding:10px 14px;background:#2563eb;color:#ffffff;font-weight:600;cursor:pointer;">🎤 Start listening</button>
+            <div id="voice-status" style="font-size:13px;color:#666;">Tap to speak a question.</div>
         </div>
         <script>
             const btn = document.getElementById('voice-btn');
@@ -34,28 +34,72 @@ def _render_voice_assistant() -> None:
                 recognition.continuous = false;
                 recognition.interimResults = false;
                 recognition.lang = 'en-US';
+
                 recognition.onstart = () => {
                     btn.textContent = '🛑 Stop';
                     status.textContent = 'Listening...';
                     btn.dataset.listening = 'true';
                 };
+
                 recognition.onresult = (event) => {
                     const transcript = Array.from(event.results).map((r) => r[0].transcript).join(' ').trim();
-                    if (transcript) {
-                        status.textContent = 'Heard: ' + transcript;
-                        const url = new URL(window.location.href);
-                        url.searchParams.set('voice_question', transcript);
-                        window.history.replaceState({}, '', url);
-                        window.location.reload();
-                    } else {
+                    if (!transcript) {
                         status.textContent = 'No speech detected.';
+                        return;
+                    }
+                    status.textContent = 'Heard: "' + transcript + '"';
+
+                    // NOTE: navigating window.parent.location (via .href, a hash change,
+                    // or sessionStorage + reload) is blocked by Streamlit's iframe sandbox --
+                    // it lacks the "allow-top-navigation" permission, which is exactly the
+                    // "does not have permission to navigate the target frame" error. There is
+                    // no JS workaround for that; the fix is to not navigate at all.
+                    //
+                    // Instead, type directly into the real st.chat_input box and submit it,
+                    // the same as if the user had typed and pressed Enter. That's a normal
+                    // Streamlit rerun over the existing websocket connection -- no navigation,
+                    // no lost session state.
+                    try {
+                        const parentDoc = window.parent.document;
+                        const chatInput = parentDoc.querySelector('textarea[data-testid="stChatInputTextArea"]');
+
+                        if (!chatInput) {
+                            status.textContent = 'Could not find the chat box on this page.';
+                            return;
+                        }
+
+                        // React tracks the textarea's value via its own setter, so a plain
+                        // chatInput.value = transcript is silently ignored on next render.
+                        // Calling the native setter first, then dispatching 'input', is what
+                        // makes React (and therefore Streamlit) actually pick up the change.
+                        const nativeSetter = Object.getOwnPropertyDescriptor(
+                            window.parent.HTMLTextAreaElement.prototype, 'value'
+                        ).set;
+                        nativeSetter.call(chatInput, transcript);
+                        chatInput.dispatchEvent(new Event('input', { bubbles: true }));
+
+                        const submitBtn = parentDoc.querySelector('button[data-testid="stChatInputSubmitButton"]');
+                        setTimeout(() => {
+                            if (submitBtn && !submitBtn.disabled) {
+                                submitBtn.click();
+                            } else {
+                                chatInput.dispatchEvent(new KeyboardEvent('keydown', {
+                                    key: 'Enter', code: 'Enter', keyCode: 13, bubbles: true,
+                                }));
+                            }
+                            status.textContent = 'Sent: "' + transcript + '"';
+                        }, 50);
+                    } catch (err) {
+                        status.textContent = 'Voice hookup blocked by the browser: ' + err.message;
                     }
                 };
-                recognition.onerror = () => {
-                    status.textContent = 'Voice input is unavailable in this browser.';
+
+                recognition.onerror = (e) => {
+                    status.textContent = 'Voice error: ' + (e.error || 'unavailable');
                     btn.textContent = '🎤 Start listening';
                     btn.dataset.listening = 'false';
                 };
+
                 recognition.onend = () => {
                     btn.textContent = '🎤 Start listening';
                     btn.dataset.listening = 'false';
@@ -75,7 +119,7 @@ def _render_voice_assistant() -> None:
             };
         </script>
         """,
-        height=120,
+        height=80,
     )
 
 
@@ -237,6 +281,12 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
+# Initialize session state variables
+if "messages" not in st.session_state:
+    st.session_state.messages = []
+if "search_history" not in st.session_state:
+    st.session_state.search_history = []
+
 # -------------------------------------------------
 # Message history
 # -------------------------------------------------
@@ -244,18 +294,16 @@ for i, message in enumerate(st.session_state.messages):
     _render_message(message, i)
 
 # -------------------------------------------------
-# Handle pending / regenerate / new input
+# Handle inputs: Pending / Regenerate / Text
+# (voice input now arrives through typed_question below, via chat_input
+# DOM injection -- no query-param or session-storage hand-off needed)
 # -------------------------------------------------
 incoming_question = None
+
 if "pending_question" in st.session_state:
     incoming_question = st.session_state.pop("pending_question")
 if "regenerate_question" in st.session_state:
     incoming_question = st.session_state.pop("regenerate_question")
-
-voice_question = st.query_params.get("voice_question", [""])[0].strip()
-if voice_question:
-    incoming_question = voice_question
-    st.query_params.clear()
 
 st.markdown("<div style='margin: 0 0 8px 0;'>", unsafe_allow_html=True)
 _render_voice_assistant()
